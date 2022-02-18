@@ -1,12 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
-namespace Task_4
+
+var elementsFrequency = new Dictionary<char, int>();
+
+foreach (var line in File.ReadAllLines(@"D:\C#\Task_4\Task_4\dictionary.txt"))
 {
-    class Program
+    var elements = line.ToCharArray();
+    foreach (var variable in elements)
     {
-        static void Main(string[] args)
+        if (elementsFrequency.ContainsKey(variable))
         {
-            Console.WriteLine("Hello World!");
+            elementsFrequency[variable] += 1;
+        }
+        else
+        {
+            elementsFrequency.Add(variable, 1);
         }
     }
 }
+
+Console.WriteLine();
