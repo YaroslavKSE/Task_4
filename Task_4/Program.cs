@@ -21,7 +21,6 @@ foreach (var line in File.ReadAllLines(@"dictionary.txt"))
     }
 }
 
-
 var frequencyQueue = new PriorityQueue<Node, int>();
 
 foreach (var VARIABLE in elementsFrequency)
@@ -43,8 +42,22 @@ while (frequencyQueue.Count > 1)
 
 var rootNode = frequencyQueue.Peek();
 var Coded = new Dictionary<string, string>();
+var CodedFile = new List<string>();
+
 Encode(rootNode, "", Coded);
+
 PrintCodedElements(Coded);
+
+HuffmanCode(elementsFrequency);
+
+WriteHuffmanCodedFile();
+
+
+foreach (var element in CodedFile)
+{
+    Console.Write(element);
+}
+
 
 void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
 {
@@ -53,7 +66,7 @@ void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
         return;
     }
 
-    if (isLeaf(root))
+    if (IsLeaf(root))
     {
         huffmanCode.Add(root.Value, str.Length > 0 ? str : "1");
     }
@@ -61,7 +74,7 @@ void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
     Encode(root.Right, str + "1", huffmanCode);
 }
 
-bool isLeaf(Node node)
+bool IsLeaf(Node node)
 {
     if (node.Left == null && node.Right == null)
     {
@@ -70,6 +83,8 @@ bool isLeaf(Node node)
 
     return false;
 }
+
+
 
 Node GetChildRight(Node node)
 {
@@ -81,10 +96,34 @@ Node GetChildLeft(Node node)
     return node.Left;
 }
 
+
 void PrintCodedElements(Dictionary<string, string> elements)
 {
     foreach (var element in elements)
     {
         Console.Write(element.Key); Console.Write(":"); Console.WriteLine(element.Value);
+    }
+}
+
+
+void HuffmanCode(Dictionary<char, int> elementFrequency)
+{
+    foreach (var element in elementFrequency)
+    {
+        var value = element.Value;
+        while (value != 0 )
+        {
+            value -= 1;
+            CodedFile.Add(Coded[element.Key.ToString()]);
+        }
+    }
+}
+
+void WriteHuffmanCodedFile()
+{
+    using StreamWriter writer = new StreamWriter("CodedFile.txt");
+    foreach (var element in CodedFile)
+    {
+        writer.Write(element);
     }
 }
