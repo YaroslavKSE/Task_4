@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Task_4;
 
 // ------ Structure ------
@@ -8,9 +9,10 @@ var elementsFrequency = new Dictionary<char, int>();
 var frequencyQueue = new PriorityQueue<Node, int>();
 var elementsCode = new Dictionary<string, string>();
 var codedFile = new List<string>();
+var decodedList = new List<string>();
 
 
-TextReader();
+TextReader(elementsFrequency, @"dictionary.txt");
 
 SortToQueue();
 
@@ -26,6 +28,8 @@ HuffmanCode(elementsFrequency);
 PrintHuffmanCodedFile();
 
 WriteHuffmanCodedFile();
+
+DecodeTest();
 
 // ------ Implementation ------
 void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
@@ -64,20 +68,20 @@ void PrintCodedElements(Dictionary<string, string> elements)
     }
 }
 
-void TextReader()
+void TextReader(Dictionary<char, int> storeElements,  string path)
 {
-    foreach (var line in File.ReadAllLines(@"dictionary.txt"))
+    foreach (var line in File.ReadAllLines(path))
     {
         var elements = line.ToCharArray();
         foreach (var variable in elements)
         {
-            if (elementsFrequency.ContainsKey(variable))
+            if (storeElements.ContainsKey(variable))
             {
-                elementsFrequency[variable] += 1;
+                storeElements[variable] += 1;
             }
             else
             {
-                elementsFrequency.Add(variable, 1);
+                storeElements.Add(variable, 1);
             }
         }
     }
@@ -134,3 +138,58 @@ void PrintHuffmanCodedFile()
         Console.Write(element);
     }
 }
+
+Node GetRightNode(Node parentNode)
+{
+    return parentNode.Right;
+}
+
+Node GetLeftNode(Node parentNode)
+{
+    return parentNode.Left;
+}
+
+
+void DecodeTest()
+{
+    foreach (var bit in codedFile)
+    {
+        var decoded = elementsCode.FirstOrDefault(x => x.Value == bit).Key;
+        decodedList.Add(decoded);
+    }
+}
+
+foreach (var VARIABLE in decodedList)
+{
+    Console.Write(VARIABLE);
+}
+
+
+// void DecodeFile()
+// {
+//     var decodedList = new List<string>();
+//     if (rootNode == null)
+//     {
+//         return;
+//     }
+//     foreach (var bit in codedFile)
+//     {
+//         if (bit == "1")
+//         {
+//             if (IsLeaf(GetRightNode(rootNode)))
+//             {
+//                 decodedList.Add(GetRightNode(rootNode).Value);
+//             }
+//         }
+//
+//         if (bit == "0")
+//         {
+//             if (IsLeaf(GetLeftNode(rootNode)))
+//             {
+//                 decodedList.Add(GetLeftNode(rootNode).Value);
+//             }    
+//         }
+//     }
+// }
+
+// DecodeFile();
