@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Task_4;
 
-// ------ Structure ------
+// ------ GlobalVariables ------
+
 var elementsFrequency = new Dictionary<char, int>();
 var frequencyQueue = new PriorityQueue<Node, int>();
 var elementsCode = new Dictionary<string, string>();
 var codedFile = new List<string>();
-var decodedList = new List<string>();
+var text = "";
+var decodedFile = "";
 
+// ------ Structure ------
 
-TextReader(elementsFrequency, @"dictionary.txt");
+FrequencyReader(elementsFrequency, @"dictionary.txt");
+
+TextReader(@"dictionary.txt");
 
 SortToQueue();
 
@@ -23,52 +27,21 @@ Encode(rootNode, "", elementsCode);
 
 PrintCodedElements(elementsCode);
 
-HuffmanCode(elementsFrequency);
+ConvertToHuffmanCode(text);
 
 PrintHuffmanCodedFile();
 
 WriteHuffmanCodedFile();
 
-DecodeTest();
+DecodeFile(rootNode, codedFile);
+
+Console.WriteLine();
+Console.WriteLine(decodedFile);
+
 
 // ------ Implementation ------
-void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
-{
-    if (root == null)
-    {
-        return;
-    }
 
-    if (IsLeaf(root))
-    {
-        huffmanCode.Add(root.Value, str.Length > 0 ? str : "1");
-    }
-
-    Encode(root.Left, str + "0", huffmanCode);
-    Encode(root.Right, str + "1", huffmanCode);
-}
-
-bool IsLeaf(Node node)
-{
-    if (node.Left == null && node.Right == null)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void PrintCodedElements(Dictionary<string, string> elements)
-{
-    foreach (var element in elements)
-    {
-        Console.Write(element.Key);
-        Console.Write(":");
-        Console.WriteLine(element.Value);
-    }
-}
-
-void TextReader(Dictionary<char, int> storeElements,  string path)
+void FrequencyReader(Dictionary<char, int> storeElements,  string path)
 {
     foreach (var line in File.ReadAllLines(path))
     {
@@ -87,6 +60,14 @@ void TextReader(Dictionary<char, int> storeElements,  string path)
     }
 }
 
+void TextReader(string path)
+{
+    foreach (var line in File.ReadLines(path))
+    {
+        text += line;
+    }    
+}
+
 void SortToQueue()
 {
     foreach (var VARIABLE in elementsFrequency)
@@ -101,24 +82,53 @@ void TreeBuilder()
     {
         var first = frequencyQueue.Dequeue();
         var second = frequencyQueue.Dequeue();
-        if (first.Frequency <= second.Frequency)
-        {
-            var newNode = new Node(first.Value + second.Value, first.Frequency + second.Frequency, first, second);
-            frequencyQueue.Enqueue(newNode, first.Frequency + second.Frequency);
-        }
+        
+        var newNode = new Node(first.Value + second.Value, first.Frequency + second.Frequency, first, second);
+        frequencyQueue.Enqueue(newNode, first.Frequency + second.Frequency);
+        
     }
 }
 
-void HuffmanCode(Dictionary<char, int> elementFrequency)
+void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
 {
-    foreach (var element in elementFrequency)
+    if (root == null)
     {
-        var value = element.Value;
-        while (value != 0)
-        {
-            value -= 1;
-            codedFile.Add(elementsCode[element.Key.ToString()]);
-        }
+        return;
+    }
+
+    if (IsLeaf(root))
+    {
+        huffmanCode.Add(root.Value, str);
+    }
+
+    Encode(root.Left, str + "0", huffmanCode);
+    Encode(root.Right, str + "1", huffmanCode);
+}
+
+bool IsLeaf(Node node)
+{
+    if (node.Left == null && node.Right == null)
+    {
+        return true;
+    }
+    return false;
+}
+
+void PrintCodedElements(Dictionary<string, string> elements)
+{
+    foreach (var element in elements)
+    {
+        Console.Write(element.Key);
+        Console.Write(":");
+        Console.WriteLine(element.Value);
+    }
+}
+
+void ConvertToHuffmanCode(string words)
+{
+    foreach (var letter in words)
+    {
+        codedFile.Add(elementsCode[letter.ToString()]);
     }
 }
 
@@ -139,57 +149,26 @@ void PrintHuffmanCodedFile()
     }
 }
 
-Node GetRightNode(Node parentNode)
+void DecodeFile(Node root, List<string>codedText)
 {
-    return parentNode.Right;
-}
+    var current = root;
+    var word = string.Join("", codedText);
 
-Node GetLeftNode(Node parentNode)
-{
-    return parentNode.Left;
-}
-
-
-void DecodeTest()
-{
-    foreach (var bit in codedFile)
+    foreach (var bit in word)
     {
-        var decoded = elementsCode.FirstOrDefault(x => x.Value == bit).Key;
-        decodedList.Add(decoded);
+        if (bit == '0')
+        {
+            current = current.Left;
+        }
+        else
+        {
+            current = current.Right;
+        }
+
+        if (current.Right == null && current.Left == null)
+        {
+            decodedFile += current.Value;
+            current = root;
+        }
     }
 }
-
-foreach (var VARIABLE in decodedList)
-{
-    Console.Write(VARIABLE);
-}
-
-
-// void DecodeFile()
-// {
-//     var decodedList = new List<string>();
-//     if (rootNode == null)
-//     {
-//         return;
-//     }
-//     foreach (var bit in codedFile)
-//     {
-//         if (bit == "1")
-//         {
-//             if (IsLeaf(GetRightNode(rootNode)))
-//             {
-//                 decodedList.Add(GetRightNode(rootNode).Value);
-//             }
-//         }
-//
-//         if (bit == "0")
-//         {
-//             if (IsLeaf(GetLeftNode(rootNode)))
-//             {
-//                 decodedList.Add(GetLeftNode(rootNode).Value);
-//             }    
-//         }
-//     }
-// }
-
-// DecodeFile();
