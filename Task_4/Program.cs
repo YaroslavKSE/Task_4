@@ -6,7 +6,7 @@ using Task_4;
 // ------ GlobalVariables ------
 
 var elementsFrequency = new Dictionary<char, int>();
-var frequencyQueue = new PriorityQueue<Node, int>();
+var Heap = new Heap();
 var elementsCode = new Dictionary<string, string>();
 var codedFile = new List<string>();
 var text = "";
@@ -14,15 +14,13 @@ var decodedFile = "";
 
 // ------ Structure ------
 
-FrequencyReader(elementsFrequency, @"dictionary.txt");
+FrequencyReader(elementsFrequency, @"C:\C#\ConsoleApp1\dictionary.txt");
 
-TextReader(@"dictionary.txt");
-
-SortToQueue();
+TextReader(@"C:\C#\ConsoleApp1\dictionary.txt");
 
 TreeBuilder();
 
-var rootNode = frequencyQueue.Peek();
+var rootNode = Heap.GetMin();
 Encode(rootNode, "", elementsCode);
 
 PrintCodedElements(elementsCode);
@@ -38,8 +36,21 @@ DecodeFile(rootNode, codedFile);
 Console.WriteLine();
 Console.WriteLine(decodedFile);
 
+void TreeBuilder()
+{
+    foreach (var keyValue in elementsFrequency)
+    {
+        Heap.Add(new Node(keyValue.Key.ToString(), keyValue.Value, null, null));
+    }
 
-// ------ Implementation ------
+    while (Heap.Count() != 1)
+    {
+        var first = Heap.PollTopItem();
+        var second = Heap.PollTopItem();
+        var toAdd = new Node(first.Value + second.Value, first.Frequency + second.Frequency, first, second);
+        Heap.Add(toAdd);
+    }
+}
 
 void FrequencyReader(Dictionary<char, int> storeElements,  string path)
 {
@@ -66,27 +77,6 @@ void TextReader(string path)
     {
         text += line;
     }    
-}
-
-void SortToQueue()
-{
-    foreach (var VARIABLE in elementsFrequency)
-    {
-        frequencyQueue.Enqueue(new Node(VARIABLE.Key.ToString(), VARIABLE.Value, null, null), VARIABLE.Value);
-    }
-}
-
-void TreeBuilder()
-{
-    while (frequencyQueue.Count > 1)
-    {
-        var first = frequencyQueue.Dequeue();
-        var second = frequencyQueue.Dequeue();
-        
-        var newNode = new Node(first.Value + second.Value, first.Frequency + second.Frequency, first, second);
-        frequencyQueue.Enqueue(newNode, first.Frequency + second.Frequency);
-        
-    }
 }
 
 void Encode(Node root, string str, Dictionary<string, string> huffmanCode)
@@ -132,20 +122,20 @@ void ConvertToHuffmanCode(string words)
     }
 }
 
-void WriteHuffmanCodedFile()
-{
-    using StreamWriter writer = new StreamWriter("CodedFile.txt");
-    foreach (var element in codedFile)
-    {
-        writer.Write(element);
-    }
-}
-
 void PrintHuffmanCodedFile()
 {
     foreach (var element in codedFile)
     {
         Console.Write(element);
+    }
+}
+
+void WriteHuffmanCodedFile()
+{
+    using StreamWriter writer = new StreamWriter(@"C:\C#\ConsoleApp1\CodedFile.txt");
+    foreach (var element in codedFile)
+    {
+        writer.Write(element);
     }
 }
 
@@ -172,3 +162,4 @@ void DecodeFile(Node root, List<string>codedText)
         }
     }
 }
+
